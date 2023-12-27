@@ -6,6 +6,8 @@ param (
   [string]$WebhookContent
 )
 
+try { $WebhookContent | ConvertFrom-Json } catch { $WebhookContent = Get-Content $WebhookContent -Raw }
+
 try {
   Invoke-RestMethod -Uri $WebhookUrl -Method Post -Body $WebhookContent -ContentType 'application/json' -ErrorAction Stop
 
