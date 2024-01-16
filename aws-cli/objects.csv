@@ -1,0 +1,5 @@
+Bucket, Prefix, EndpointUrl, AwsProfile
+build-artifact, ChronoForge, https://s3.ap-southeast-1.wasabisys.com, wasabi
+build-artifact, MetaClash, https://s3.ap-southeast-1.wasabisys.com, wasabi
+build-artifact, ProjectGuardian, https://s3.ap-southeast-1.wasabisys.com, wasabi
+build-artifact, NextWar, https://s3.ap-southeast-1.wasabisys.com, wasabi
