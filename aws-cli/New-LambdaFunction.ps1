@@ -35,7 +35,7 @@ foreach ($function in $functions) {
 
   Start-Sleep -Seconds 1
 
-  aws lambda publish-version --function-name $functionName --profile --profile $awsProfile --region $awsRegion
+  aws lambda publish-version --function-name $functionName --profile $awsProfile --region $awsRegion
 
   aws lambda create-alias --function-name $functionName --function-version 1 --name production --profile $awsProfile --region $awsRegion
   aws lambda create-alias --function-name $functionName --function-version 1 --name staging --profile $awsProfile --region $awsRegion
