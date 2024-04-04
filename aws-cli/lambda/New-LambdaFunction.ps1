@@ -50,9 +50,21 @@ foreach ($function in $functions) {
 
   if ($null -ne $EnvironmentVariables) {
     if (Test-Path -Path $EnvironmentVariables) {
-      # Read environment variables from file
-      $json = Get-Content -Path $EnvironmentVariables
-      aws lambda update-function-configuration --function-name $functionName --environment Variables=$json --profile $awsProfile --region $awsRegion --output table
+      $data = Import-Csv $EnvironmentVariables
+
+      foreach ($row in $data) {
+        $envVariables = @{}
+
+        foreach ($key in $row.PSObject.Properties.Name) {
+          if ($key -ne 'FunctionName') {
+            $envVariables[$key] = $row.$key
+          }
+        }
+      }
+
+      $envString = ($envVariables.GetEnumerator() | ForEach-Object { "{0}={1}" -f $_.Key, $_.Value }) -join ','
+
+      aws lambda update-function-configuration --function-name $functionName --environment "Variables=$envString" --profile $awsProfile --region $awsRegion --output table
     }
     else {
       Write-Output "$EnvironmentVariables doesn't exist, skipping"
