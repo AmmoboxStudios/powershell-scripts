@@ -1,0 +1,2 @@
+"FunctionName","MARIADB_PASS","MARIADB_PORT","MARIADB_USER","MYSQL_TABLE_1","MARIADB_DATABASE","MARIADB_HOST","SQIDS_ALPHA_SET"
+"chronoforge-player-system-production-settlement-structure","password","3306","ammoboxstudios","settlement_structure","chronoforge","rds","alphabet"

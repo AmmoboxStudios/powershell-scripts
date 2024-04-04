@@ -1,2 +1,0 @@
-Name, Runtime, Role, Handler, Profile, Region
-chronoforge_xsolla_paid, nodejs20.x, arn:aws:iam::881107886795:role/lambda_gamelift_session_manager, index.handler, chronoforge, us-east-1

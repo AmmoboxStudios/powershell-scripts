@@ -1,0 +1,2 @@
+Name, Runtime, Role, Handler, Profile, Region
+FunctionName, nodejs20.x, arn:aws:iam::xxx:role/role, index.handler, awsProfile, us-east-1
