@@ -26,7 +26,7 @@ foreach ($item in $items) {
 
     $envString = ($envVariables.GetEnumerator() | ForEach-Object { "{0}={1}" -f $_.Key, $_.Value }) -join ','
 
-    # Write-Output "update $($row.FunctionName) env with `n$envString"
+    Write-Output "update $($row.FunctionName) env with `n$envString"
 
     $updateCommand = "aws lambda update-function-configuration --function-name $($row.FunctionName) --environment `"Variables={$envString}`" --profile $awsProfile --region $awsRegion | Out-Null"
 
