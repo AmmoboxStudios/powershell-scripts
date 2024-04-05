@@ -1,2 +1,2 @@
-"FunctionName","MARIADB_PASS","MARIADB_PORT","MYSQL_TABLE_1","MARIADB_USER","MARIADB_DATABASE","MARIADB_HOST","SQIDS_ALPHA_SET"
-"chronoforge-player-system-production-adventurer-traits","password","3306","user","ammoboxstudios","chronoforge","rds","alphabet"
+"FunctionName","MARIADB_PASSWORD","MARIADB_PORT","MYSQL_TABLE","MARIADB_USER","MARIADB_DATABASE","MARIADB_HOST","SQIDS_ALPHA_SET"
+"cf-player-dev-adventurer-traits","password","3306","user","ammoboxstudios","chronoforge","rds","alphabet"

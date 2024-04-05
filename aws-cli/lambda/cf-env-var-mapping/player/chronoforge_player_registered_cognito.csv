@@ -1,2 +1,2 @@
-"FunctionName","MARIADB_PASS","MARIADB_PORT","MARIADB_USER","MYSQL_TABLE_1","MARIADB_DATABASE","MARIADB_HOST","SQIDS_ALPHA_SET"
-"chronoforge-player-system-production-registered-cognito","password","3306","ammoboxstudios","user","chronoforge","rds","alphabet"
+"FunctionName","MARIADB_PASSWORD","MARIADB_PORT","MARIADB_USER","MYSQL_TABLE_1","MARIADB_DATABASE","MARIADB_HOST","SQIDS_ALPHA_SET"
+"cf-player-dev-registered-cognito","password","3306","ammoboxstudios","user","chronoforge","rds","alphabet"

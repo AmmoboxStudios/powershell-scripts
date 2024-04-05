@@ -1,2 +1,2 @@
 "FunctionName","MARIADB_PASSWORD","MARIADB_PORT","MARIADB_USER","MYSQL_TABLE_1","MARIADB_DATABASE","MARIADB_HOST","SQIDS_ALPHA_SET"
-"cf-player-dev-foodbuff","password","3306","ammoboxstudios","adventurer","chronoforge","rds","alphabet"
+"cf-player-dev-settlement-unvote","password","3306","ammoboxstudios","settlement_vote_player","chronoforge","rds","alphabet"
