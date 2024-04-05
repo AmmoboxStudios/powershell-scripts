@@ -16,6 +16,14 @@ Comma separated value of **functions.csv** within the script folder
 .\Get-LambdaEnv.ps1 -awsProfile profile -awsRegion region
 ```
 
+## Get-LambdaVpcConfig
+
+### Input
+
+```ps1
+.\Get-LambdaVpcConfig.ps1 -awsProfile profile -awsRegion region
+```
+
 ### Output
 
 Comma separated value files for the lambda functions environment variables with the function name itself `$functionName.csv`
@@ -33,3 +41,10 @@ Comma separated value files for the lambda functions environment variables with 
 ```ps1
 .\Set-LambdaEnv.ps1 -awsProfile profile -awsRegion region -folderPath "cf-env-var-mapping\player"
 ```
+
+### Demo
+
+
+https://github.com/AmmoboxStudios/powershell-scripts/assets/112679984/7e56d9ad-dc8c-4b5c-aa3b-8337c47e75d4
+
+
