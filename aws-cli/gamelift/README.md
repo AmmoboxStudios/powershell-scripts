@@ -2,11 +2,13 @@
 
 ### Input
 
-Comma separated value of **fleets.csv** within the script folder
+Comma separated value of **fleets.csv** within the script folder (use either Alias / FleetId)
 
-Id | Region | Profile | TargetValue | Min | Max
---- | --- | --- | --- | --- | --- |
-fleet-12345678-abc-defg-hijk-lmnopqrstuvwx | us-east-1 | myProfile | 1 | 1 | 1
+Refer [here](https://awscli.amazonaws.com/v2/documentation/api/latest/reference/gamelift/update-fleet-capacity.html) for references of the parameter values
+
+| AliasName | FleetId                                    | Region    | Profile   | TargetValue | Desired | Min | Max |
+| --------- | ------------------------------------------ | --------- | --------- | ----------- | ------- | --- | --- |
+| aliasName | fleet-12345678-abc-defg-hijk-lmnopqrstuvwx | us-east-1 | myProfile | 10          | 1       | 0   | 5   |
 
 ### Output
 
@@ -39,4 +41,12 @@ fleet-12345678-abc-defg-hijk-lmnopqrstuvwx | us-east-1 | myProfile | 1 | 1 | 1
 |||  PENDING                                                                      |  0                       |||
 |||  TERMINATING                                                                  |  0                       |||
 ||+-------------------------------------------------------------------------------+--------------------------+||
+
+DeleteScalingPolicy for us-east-1 with name: 1PercentAvailableGameSessions
+PutScalingPolicy for us-east-1 with 10 % of available game sessions
+--------------------------------------------
+|             PutScalingPolicy             |
++------+-----------------------------------+
+|  Name|  10PercentAvailableGameSessions   |
++------+-----------------------------------+
 ```
