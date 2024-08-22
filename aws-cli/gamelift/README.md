@@ -50,3 +50,27 @@ PutScalingPolicy for us-east-1 with 10 % of available game sessions
 |  Name|  10PercentAvailableGameSessions   |
 +------+-----------------------------------+
 ```
+
+## Connect-Gamelift
+
+### Usage
+
+Get the FleetId
+
+```sh
+aws gamelift list-fleets --profile $AwsProfile --region $AwsRegion
+```
+
+Run the script with selected FleetId
+
+```ps1
+./Connect-Gamelift.ps1 -AwsProfile $AwsProfile -AwsRegion $AwsRegion -FleetId $FleetId
+```
+
+### Output
+
+A `.pem` file will be created on the script directory with this command as output
+
+```ps1
+ssh -i $pemFile gl-user-remote@$computeIp
+```
