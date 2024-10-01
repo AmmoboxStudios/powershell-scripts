@@ -2,9 +2,17 @@
 param (
   [Parameter(Mandatory)]
   [string]$WebhookUrl,
-  [Parameter(Mandatory)]
-  [string]$WebhookContent
+  [Parameter(Mandatory = $false)]
+  [string]$WebhookContent,
+  [Parameter(Mandatory = $false)]
+  [string]$File
 )
+
+if (-not ([string]::IsNullOrEmpty($file))) { 
+  curl.exe -F "file1=@$File" $WebhookUrl 
+  Write-Output "Webhook successfully sent."
+  exit 0
+}
 
 try { $WebhookContent | ConvertFrom-Json } catch { $WebhookContent = Get-Content $WebhookContent -Raw }
 
