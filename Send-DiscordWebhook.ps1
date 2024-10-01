@@ -1,15 +1,15 @@
 [CmdletBinding()]
 param (
-  [Parameter(Mandatory)]
-  [string]$WebhookUrl,
-  [Parameter(Mandatory = $false)]
-  [string]$WebhookContent,
-  [Parameter(Mandatory = $false)]
-  [string]$File
+  [string][Parameter(ParameterSetName = "DefaultSet")]
+  [string]$WebhookUrl = $env:WebhookUrl,
+  [string][Parameter(ParameterSetName = "DefaultSet")]
+  [string]$WebhookContent = $env:WebhookContent,
+  [string][Parameter(ParameterSetName = "DefaultSet")]
+  [string]$WebhookFile = $env:WebhookFile
 )
 
-if (-not ([string]::IsNullOrEmpty($file))) { 
-  curl.exe -F "file1=@$File" $WebhookUrl 
+if (-not ([string]::IsNullOrEmpty($WebhookFile))) { 
+  curl.exe -F "file1=@$WebhookFile" $WebhookUrl 
   Write-Output "Webhook successfully sent."
   exit 0
 }
