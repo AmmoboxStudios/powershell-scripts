@@ -11,6 +11,7 @@ param(
 $headers = @{
     "Authorization" = "Bearer $TeamCityToken"
     "Content-Type"  = "application/json"
+    "Accept"        = "application/json"
 }
 
 # Set the TeamCity server URL and API endpoint for Builds
