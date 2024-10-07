@@ -5,13 +5,14 @@ param(
     [string][Parameter(ParameterSetName = "DefaultSet")]
     $TeamCityUrl = $env:TeamCityUrl,
     [string][Parameter(ParameterSetName = "DefaultSet")]
-    $TeamCityBuildId = $env:TeamCityBuildId
+    $TeamCityBuildId = $env:TeamCityBuildId,
+    [string][Parameter(ParameterSetName = "DefaultSet")]
+    $DiscordWebhookUrl = $env:DiscordWebhookUrl
 )
 
 $headers = @{
     "Authorization" = "Bearer $TeamCityToken"
     "Content-Type"  = "application/json"
-    "Accept"        = "application/json"
 }
 
 # Set the TeamCity server URL and API endpoint for Builds
@@ -27,6 +28,8 @@ catch {
     return
 }
 
+$ChangesWebUrl = $Response.build.webUrl
+$SvnRevision = $Response.build.revisions.revision | Where-Object vcsBranchName -ne 'refs/heads/main' | ForEach-Object version
 $ChangesUrl = $TeamCityUrl + $Response.build.changes.href
 
 try {
@@ -52,8 +55,8 @@ foreach ($Change in $ChangesResponse.changes.change) {
 $Fields = $Fields[0..24]
 
 $Embed = @{
-    "title" = "Potential commits failing build"
-    "url"   = $TeamCityUrl
+    "title" = "Potential commits failing build (Revision: $SvnRevision)"
+    "url"   = $ChangesWebUrl + "?buildTab=changes"
     "color" = 16734296
     "fields" = $Fields
 }
@@ -64,5 +67,11 @@ $Payload = @{
     "attachments" = @()
 }
 
+$JsonFile = ".\commit-content.json"
 $PayloadJson = $Payload | ConvertTo-Json -Depth 4
-Set-Content .\commit-content.json -Value $PayloadJson -Force
+Set-Content $JsonFile -Value $PayloadJson -Force
+
+Write-Output "commit-content.json"
+Get-Content $JsonFile
+
+.\Send-DiscordWebhook.ps1 -WebhookUrl $DiscordWebhookUrl -WebhookContent $JsonFile
