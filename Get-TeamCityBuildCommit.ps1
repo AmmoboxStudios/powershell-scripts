@@ -74,4 +74,4 @@ Set-Content $JsonFile -Value $PayloadJson -Force
 Write-Output "commit-content.json"
 Get-Content $JsonFile
 
-.\Send-DiscordWebhook.ps1 -WebhookUrl $DiscordWebhookUrl -WebhookContent $JsonFile
+& $PSScriptRoot\Send-DiscordWebhook.ps1 -WebhookUrl $DiscordWebhookUrl -WebhookContent $JsonFile
