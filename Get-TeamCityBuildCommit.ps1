@@ -29,6 +29,7 @@ catch {
 }
 
 $ChangesWebUrl = $Response.build.webUrl
+$SvnBranch = $Response.build.branchName
 $SvnRevision = $Response.build.revisions.revision | Where-Object vcsBranchName -ne 'refs/heads/main' | ForEach-Object version
 $ChangesUrl = $TeamCityUrl + $Response.build.changes.href
 
@@ -55,7 +56,7 @@ foreach ($Change in $ChangesResponse.changes.change) {
 $Fields = $Fields[0..24]
 
 $Embed = @{
-    "title" = "Potential commits failing build (Revision: $SvnRevision)"
+    "title" = "Potential commits failing build (Revision: $SvnRevision on $SvnBranch)"
     "url"   = $ChangesWebUrl + "?buildTab=changes"
     "color" = 16734296
     "fields" = $Fields
