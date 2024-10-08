@@ -7,6 +7,8 @@ param(
     [string][Parameter(ParameterSetName = "DefaultSet")]
     $TeamCityBuildId = $env:TeamCityBuildId,
     [string][Parameter(ParameterSetName = "DefaultSet")]
+    $DiscordWebhookColor = $env:DiscordWebhookColor,
+    [string][Parameter(ParameterSetName = "DefaultSet")]
     $DiscordWebhookUrl = $env:DiscordWebhookUrl,
     [string][Parameter(ParameterSetName = "DefaultSet")]
     $DiscordWebhookContent = $env:DiscordWebhookContent,
@@ -14,65 +16,58 @@ param(
     $DiscordWebhookFile = $env:DiscordWebhookFile
 )
 
-$headers = @{
-    "Authorization" = "Bearer $TeamCityToken"
-    "Content-Type"  = "application/json"
+function Invoke-TeamCityApi {
+    param (
+        [string]$Url
+    )
+
+    $Headers = @{
+        "Authorization" = "Bearer $TeamCityToken"
+        "Content-Type"  = "application/json"
+    }
+    
+    try {
+        return Invoke-RestMethod -Uri $Url -Method 'GET' -Headers $Headers -ErrorAction 'Stop'
+    }
+    catch {
+        Write-Error "Error fetching from $Url : $_"
+        return $null
+    }
 }
 
 # Set the TeamCity server URL and API endpoint for Builds
 $BuildEndpoint = "/app/rest/builds/$TeamCityBuildId"
-
 $BuildUrl = $TeamCityUrl + $BuildEndpoint
+$BuildResponse = Invoke-TeamCityApi -Url $BuildUrl
+if (-not $BuildResponse) { return }
 
-try {
-    $Response = Invoke-RestMethod -Uri $BuildUrl -Method 'GET' -Headers $headers -ErrorAction 'Stop'
-}
-catch {
-    Write-Error "Error: $_"
-    return
-}
+$ChangesWebUrl = $BuildResponse.build.webUrl
+$SvnBranch = $BuildResponse.build.branchName
+$SvnRevision = $BuildResponse.build.revisions.revision | Where-Object vcsBranchName -ne 'refs/heads/main' | ForEach-Object version
 
-$ChangesWebUrl = $Response.build.webUrl
-$SvnBranch = $Response.build.branchName
-$SvnRevision = $Response.build.revisions.revision | Where-Object vcsBranchName -ne 'refs/heads/main' | ForEach-Object version
-$ChangesUrl = $TeamCityUrl + $Response.build.changes.href
-
-try {
-    $ChangesResponse = Invoke-RestMethod -Uri $ChangesUrl -Method 'GET' -Headers $headers -ErrorAction 'Stop'
-}
-catch {
-    Write-Error "Error: $_"
-    return
-}
+# Set the TeamCity server URL and API endpoint for Changes
+$ChangesUrl = $TeamCityUrl + $BuildResponse.build.changes.href
+$ChangesResponse = Invoke-TeamCityApi -Url $ChangesUrl
+if (-not $ChangesResponse) { return }
 
 $Fields = @()
 
-foreach ($Change in $ChangesResponse.changes.change) {
-    $ChangeUsername = $Change.username
-    if ($ChangeUsername -ne 'ariff.a') {
-        $Field = @{
-            "name"  = $ChangeUsername
-            "value" = "[$($Change.version)]($($Change.webUrl))"
-        }
-    
-        $Fields += $Field
+$Fields = $ChangesResponse.changes.change | Where-Object username -ne 'ariff.a' | ForEach-Object {
+    @{
+        "name"  = $_.username
+        "value" = "[$($_.version)]($($_.webUrl))"
     }
 }
 
 # Limit the fields to 25 (Discord's field limit per embed)
-$Fields = $Fields[0..24]
-
-$Color = 13631488
-
+$Fields = $Fields | Select-Object -First 25
 $Embed = @{
-    "title"  = "Rev $SvnRevision on branch $SvnBranch"
+    "title"  = "Svn Rev: $SvnRevision | Branch: $SvnBranch"
     "url"    = $ChangesWebUrl + "?buildTab=changes"
-    "color"  = $Color
+    "color"  = $DiscordWebhookColor
     "fields" = $Fields
 }
-
 $Content = "Potential commits failing build"
-
 $Payload = @{
     "content"     = $Content
     "embeds"      = @($Embed)
@@ -85,40 +80,23 @@ Set-Content $DiscordWebhookContent -Value $PayloadJson -Force
 
 & $PSScriptRoot\Send-DiscordWebhook.ps1 -WebhookUrl $DiscordWebhookUrl -WebhookContent $DiscordWebhookContent
 
+# Set the TeamCity server URL and API endpoint for Artifacts
 $ArtifactsEndpoint = "/app/rest/builds/$TeamCityBuildId/artifacts"
-
 $ArtifactsUrl = $TeamCityUrl + $ArtifactsEndpoint
+$ArtifactsResponse = Invoke-TeamCityApi -Url $ArtifactsUrl
+if (-not $ArtifactsResponse) { return }
 
-try {
-    $ArtifactsResponse = Invoke-RestMethod -Uri $ArtifactsUrl -Method 'GET' -Headers $headers -ErrorAction 'Stop'
-}
-catch {
-    Write-Error "Error: $_"
-    return
-}
-
+# Set the TeamCity server URL and API endpoint for Artifact
 $ArtifactUrl = $TeamCityUrl + $ArtifactsResponse.files.file.children.href
+$ArtifactResponse = Invoke-TeamCityApi -Url $ArtifactUrl
+if (-not $ArtifactResponse) { return }
 
-try {
-    $ArtifactResponse = Invoke-RestMethod -Uri $ArtifactUrl -Method 'GET' -Headers $headers -ErrorAction 'Stop'
-}
-catch {
-    Write-Error "Error: $_"
-    return
-}
+# Set the TeamCity server URL and API endpoint for Content
+$ContentUrl = $TeamCityUrl + $ArtifactResponse.files.file.content.href
+$ContentResponse = Invoke-TeamCityApi -Url $ContentUrl
+if (-not $ContentResponse) { return }
 
 $DiscordWebhookFile = $ArtifactResponse.files.file.name
-
-$ArtifactContent = $TeamCityUrl + $ArtifactResponse.files.file.content.href
-
-try {
-    $ContentResponse = Invoke-RestMethod -Uri $ArtifactContent -Method 'GET' -Headers $headers -ErrorAction 'Stop'
-}
-catch {
-    Write-Error "Error: $_"
-    return
-}
-
 Set-Content -Value $ContentResponse -Path $DiscordWebhookFile
 
-if ($DiscordWebhookFile) { & $PSScriptRoot\Send-DiscordWebhook.ps1 -WebhookUrl $DiscordWebhookUrl -WebhookFile $DiscordWebhookFile }
+& $PSScriptRoot\Send-DiscordWebhook.ps1 -WebhookUrl $DiscordWebhookUrl -WebhookFile $DiscordWebhookFile
