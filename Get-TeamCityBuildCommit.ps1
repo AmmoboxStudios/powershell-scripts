@@ -9,7 +9,7 @@ param(
     [string][Parameter(ParameterSetName = "DefaultSet")]
     $DiscordWebhookUrl = $env:DiscordWebhookUrl,
     [string][Parameter(ParameterSetName = "DefaultSet")]
-    $DiscordWebhookContent = "commit-content.json",
+    $DiscordWebhookContent = $env:DiscordWebhookContent,
     [string][Parameter(ParameterSetName = "DefaultSet")]
     $DiscordWebhookFile = $env:DiscordWebhookFile
 )
