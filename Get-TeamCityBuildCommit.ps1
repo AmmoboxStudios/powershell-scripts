@@ -85,4 +85,40 @@ Set-Content $DiscordWebhookContent -Value $PayloadJson -Force
 
 & $PSScriptRoot\Send-DiscordWebhook.ps1 -WebhookUrl $DiscordWebhookUrl -WebhookContent $DiscordWebhookContent
 
+$ArtifactsEndpoint = "/app/rest/builds/$TeamCityBuildId/artifacts"
+
+$ArtifactsUrl = $TeamCityUrl + $ArtifactsEndpoint
+
+try {
+    $ArtifactsResponse = Invoke-RestMethod -Uri $ArtifactsUrl -Method 'GET' -Headers $headers -ErrorAction 'Stop'
+}
+catch {
+    Write-Error "Error: $_"
+    return
+}
+
+$ArtifactUrl = $TeamCityUrl + $ArtifactsResponse.files.file.children.href
+
+try {
+    $ArtifactResponse = Invoke-RestMethod -Uri $ArtifactUrl -Method 'GET' -Headers $headers -ErrorAction 'Stop'
+}
+catch {
+    Write-Error "Error: $_"
+    return
+}
+
+$DiscordWebhookFile = $ArtifactResponse.files.file.name
+
+$ArtifactContent = $TeamCityUrl + $ArtifactResponse.files.file.content.href
+
+try {
+    $ContentResponse = Invoke-RestMethod -Uri $ArtifactContent -Method 'GET' -Headers $headers -ErrorAction 'Stop'
+}
+catch {
+    Write-Error "Error: $_"
+    return
+}
+
+Set-Content -Value $ContentResponse -Path $DiscordWebhookFile
+
 if ($DiscordWebhookFile) { & $PSScriptRoot\Send-DiscordWebhook.ps1 -WebhookUrl $DiscordWebhookUrl -WebhookFile $DiscordWebhookFile }
