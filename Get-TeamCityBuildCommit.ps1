@@ -7,7 +7,11 @@ param(
     [string][Parameter(ParameterSetName = "DefaultSet")]
     $TeamCityBuildId = $env:TeamCityBuildId,
     [string][Parameter(ParameterSetName = "DefaultSet")]
-    $DiscordWebhookUrl = $env:DiscordWebhookUrl
+    $DiscordWebhookUrl = $env:DiscordWebhookUrl,
+    [string][Parameter(ParameterSetName = "DefaultSet")]
+    $DiscordWebhookContent = "commit-content.json",
+    [string][Parameter(ParameterSetName = "DefaultSet")]
+    $DiscordWebhookFile = $env:DiscordWebhookFile
 )
 
 $headers = @{
@@ -44,35 +48,41 @@ catch {
 $Fields = @()
 
 foreach ($Change in $ChangesResponse.changes.change) {
-    $Field = @{
-        "name"  = $Change.username
-        "value" = "[$($Change.version)]($($Change.webUrl))"
+    $ChangeUsername = $Change.username
+    if ($ChangeUsername -ne 'ariff.a') {
+        $Field = @{
+            "name"  = $ChangeUsername
+            "value" = "[$($Change.version)]($($Change.webUrl))"
+        }
+    
+        $Fields += $Field
     }
-
-    $Fields += $Field
 }
 
 # Limit the fields to 25 (Discord's field limit per embed)
 $Fields = $Fields[0..24]
 
+$Color = 13631488
+
 $Embed = @{
-    "title" = "Potential commits failing build (Revision: $SvnRevision on $SvnBranch)"
-    "url"   = $ChangesWebUrl + "?buildTab=changes"
-    "color" = 16734296
+    "title"  = "Rev $SvnRevision on branch $SvnBranch"
+    "url"    = $ChangesWebUrl + "?buildTab=changes"
+    "color"  = $Color
     "fields" = $Fields
 }
 
+$Content = "Potential commits failing build"
+
 $Payload = @{
-    "content" = $null
-    "embeds"  = @($Embed)
+    "content"     = $Content
+    "embeds"      = @($Embed)
     "attachments" = @()
 }
 
-$JsonFile = ".\commit-content.json"
 $PayloadJson = $Payload | ConvertTo-Json -Depth 4
-Set-Content $JsonFile -Value $PayloadJson -Force
+$PayloadJson
+Set-Content $DiscordWebhookContent -Value $PayloadJson -Force
 
-Write-Output "commit-content.json"
-Get-Content $JsonFile
+& $PSScriptRoot\Send-DiscordWebhook.ps1 -WebhookUrl $DiscordWebhookUrl -WebhookContent $DiscordWebhookContent
 
-& $PSScriptRoot\Send-DiscordWebhook.ps1 -WebhookUrl $DiscordWebhookUrl -WebhookContent $JsonFile
+if ($DiscordWebhookFile) { & $PSScriptRoot\Send-DiscordWebhook.ps1 -WebhookUrl $DiscordWebhookUrl -WebhookFile $DiscordWebhookFile }
